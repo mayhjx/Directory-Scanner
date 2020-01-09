@@ -61,6 +61,7 @@ namespace Directory_Scanner
 
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            // TODO txtPath.Text为根目录（如C:\）的话，Path.GetDirectoryName（）返回的值为null，需增加判断条件。
             string filestr = Path.Combine(Path.GetDirectoryName(txtPath.Text), e.Node.FullPath);
             System.Diagnostics.Process.Start(filestr);
         }
