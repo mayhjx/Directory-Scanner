@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
+
 
 namespace Directory_Scanner
 {
@@ -22,16 +24,25 @@ namespace Directory_Scanner
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
-            DialogResult result = folderBrowserDialog1.ShowDialog();
-            if (result == DialogResult.OK)
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
+                string path = dialog.FileName;
                 dirNum = 0;
                 fileNum = 0;
-                txtPath.Text = "";
-                string path = folderBrowserDialog1.SelectedPath;
+
+                // Initial
+                btnOpen.Enabled = false;
                 txtPath.Text = path;
+                treeView1.Nodes.Clear();
+                toolStripStatusLabel1.Text = "扫描中，请稍候...";
+                Application.DoEvents();
+
                 ListDirectory(treeView1, path);
                 toolStripStatusLabel1.Text = string.Format("包含子文件夹：{0}，文件：{1}", dirNum, fileNum);
+                btnOpen.Enabled = true;
             }
         }
 
@@ -60,7 +71,7 @@ namespace Directory_Scanner
                     fileNum++;
                 }
             }
-            catch (System.UnauthorizedAccessException)
+            catch
             {
                 // pass
             }
@@ -69,19 +80,24 @@ namespace Directory_Scanner
 
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            // TODO txtPath.Text为根目录（如C:\）的话，Path.GetDirectoryName（）返回的值为null。
+            // TODO txtPath.Text为根目录（如C:\\）或共享文件夹一级目录(一级目录例：\\10.10.18.16\MNs...与节点父目录(\MNs...\...)会重复）的话，Path.GetDirectoryName（）返回的值为null。
             string filestr;
             string path = Path.GetDirectoryName(txtPath.Text);
             if (path is null)
             {
                 filestr = Path.Combine(txtPath.Text, e.Node.FullPath);
             }
+            // TODO
             else
             {
                 filestr = Path.Combine(path, e.Node.FullPath);
             }
-            
-            System.Diagnostics.Process.Start(filestr);
+
+            try
+            {
+                System.Diagnostics.Process.Start(filestr);
+            }
+            catch { }
         }
     }
 }
