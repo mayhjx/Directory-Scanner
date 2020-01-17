@@ -41,7 +41,7 @@ namespace Directory_Scanner
                 Application.DoEvents();
 
                 ListDirectory(treeView1, path);
-                toolStripStatusLabel1.Text = string.Format("包含子文件夹：{0}，文件：{1}", dirNum, fileNum);
+                toolStripStatusLabel1.Text = string.Format("包含子文件夹：{0}个，子文件：{1}个", dirNum, fileNum);
                 btnOpen.Enabled = true;
             }
         }
