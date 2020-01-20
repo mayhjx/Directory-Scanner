@@ -68,15 +68,10 @@ namespace Directory_Scanner
             {
                 foreach (var directory in directoryInfo.GetDirectories())
                 {
-                    if (directory.Name.Contains(keyword))
-                    {
-                        directoryNode.Nodes.Add(CreateDirectoryNode(directory, keyword));
-                        dirNum++;
-                    }
-                    //else if (directory.Name.Contains(keyword))
+                    //if (directory.Name.Contains(keyword))
                     //{
-                    //    directoryNode.Nodes.Add(CreateDirectoryNode(directory, keyword));
-                    //    dirNum++;
+                    directoryNode.Nodes.Add(CreateDirectoryNode(directory, keyword));
+                    dirNum++;
                     //}
                 }
 
@@ -86,42 +81,36 @@ namespace Directory_Scanner
                     {
                         directoryNode.Nodes.Add(new TreeNode(file.Name));
                         fileNum++;
-                    }
-                    //else if (file.Name.Contains(keyword))
-                    //{
-                    //    directoryNode.Nodes.Add(new TreeNode(file.Name));
-                    //    fileNum++;
-                    //}
-                    
+                    }         
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // pass
+                MessageBox.Show(ex.Message);
             }
             return directoryNode;
         }
 
-        private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void treeView1_MouseDown(object sender, MouseEventArgs e)
         {
-            // TODO txtPath.Text为根目录（如C:\\）或共享文件夹一级目录(一级目录例：\\10.10.18.16\MNs...与节点父目录(\MNs...\...)会重复）的话，Path.GetDirectoryName（）返回的值为null。
-            string filestr;
-            string path = Path.GetDirectoryName(txtPath.Text);
-            if (path is null)
+            if (e.Button == MouseButtons.Right)
             {
-                filestr = Path.Combine(txtPath.Text, e.Node.FullPath);
+                Point ClickPoint = new Point(e.X, e.Y);
+                TreeNode CurrentNode = treeView1.GetNodeAt(ClickPoint);
+                if (CurrentNode != null)
+                {
+                    CurrentNode.ContextMenuStrip = contextMenuStrip1;
+                    treeView1.SelectedNode = CurrentNode;
+                }
             }
-            // TODO
-            else
-            {
-                filestr = Path.Combine(path, e.Node.FullPath);
-            }
+        }
 
-            try
-            {
-                System.Diagnostics.Process.Start(filestr);
-            }
-            catch { }
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            string path = "";
+            path = Path.Combine(Path.GetDirectoryName(this.txtPath.Text), this.treeView1.SelectedNode.FullPath);
+            System.Diagnostics.Process.Start(path);
         }
     }
 }
